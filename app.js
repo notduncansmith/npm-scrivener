@@ -1,7 +1,7 @@
 var path = require('path')
   , dir = process.cwd()
   , fs = require('fs')
-  , appName = ""
+  , appName = '/'
   , colors = require('colors')
   , ncp = require('ncp');
 
@@ -11,64 +11,72 @@ module.exports = {
     appName = app;
   },
 
-	touch: function (filePath) {
-	  if (filePath instanceof Array) {
-	    var realPath = path.join(dir, appName, path.normalize(filePath.join('/')));
-	  } else {
-	    var realPath = path.join(dir, appName, filePath);
-	  }
+  touch: function (filePath) {
+    if (filePath instanceof Array) {
+      var realPath = path.join(dir, appName, path.normalize(filePath.join('/')));
+    } else {
+      var realPath = path.join(dir, appName, filePath);
+    }
     
-	  fs.writeFile(realPath, '', function (err){
+    fs.writeFile(realPath, '', function (err){
       if (err) {
         console.log("Error generating ".red + realPath.red + " directory:\n\n".red + err);
         throw err;
       }
       console.log("Successfully generated ".green + realPath)
     });
-	},
+  },
 
-	mkDir: function (filePath, cb) {
-	  if (filePath instanceof Array) {
-      var realPath = path.join(dir, appName, path.normalize(filePath.join('/')));
-    } else {
-      var realPath = path.join(dir, appName, filePath);
-    }
-	  
-
-	  fs.mkdir(realPath, function (err){
-	    if (err) {
-	      console.log("Error generating ".red + realPath.red + " directory:\n\n".red + err);
-	      throw err;
-	    }
-	    if (cb) {
-	      cb();
-	    }
-	  });
-	},
-
-	write: function (filePath, content) {
-	  if (filePath instanceof Array) {
-      var realPath = path.join(dir, appName, path.normalize(filePath.join('/')));
-    } else {
-      var realPath = path.join(dir, appName, filePath);
-    }
-
-	  fs.writeFile(realPath, content, function (err) {
-	    if (err) {
-	      console.log("Error generating ".red + realPath.red + ":\n\n".red + err);
-	      throw err;
-	    }
-	  });
-	},
-
-  readFile: function(filePath) {
+  mkDir: function (filePath, cb) {
     if (filePath instanceof Array) {
       var realPath = path.join(dir, appName, path.normalize(filePath.join('/')));
     } else {
       var realPath = path.join(dir, appName, filePath);
     }
+    
 
-    return fs.readFileSync(realPath, String);
+    fs.mkdir(realPath, function (err){
+      if (err) {
+        console.log("Error generating ".red + realPath.red + " directory:\n\n".red + err);
+        throw err;
+      }
+      if (cb) {
+        cb();
+      }
+    });
+  },
+
+  write: function (filePath, content, cb) {
+    if (filePath instanceof Array) {
+      var realPath = path.join(dir, appName, path.normalize(filePath.join('/')));
+    } else {
+      var realPath = path.join(dir, appName, filePath);
+    }
+    realPath = path.normalize(realPath);
+
+    fs.writeFile(realPath, content, function (err) {
+      if (err) {
+        console.log("Error generating ".red + realPath.red + ":\n\n".red + err);
+        throw err;
+      }
+      console.log("Successfully wrote to ".green + realPath)
+      if (cb) {
+        cb();
+      }
+    });
+  },
+
+  readFile: function(filePath) {
+    console.log(filePath)
+    if (filePath instanceof Array) {
+      var realPath = path.join(dir, appName, path.normalize(filePath.join('/')));
+    } else {
+      var realPath = path.join(dir, appName, filePath);
+    }
+    realPath = path.normalize(realPath);
+    console.log(realPath)
+
+    return fs.readFileSync(realPath, 'utf-8') || "Unable to read file";
   },
 
   append: function(filePath, data, cb) {
@@ -83,7 +91,7 @@ module.exports = {
         console.log("Error generating ".red + realPath.red + ":\n\n".red + err);
         throw err;
       }
-      if (cb !== undefined) {
+      if (cb) {
         cb();
       }
     })
